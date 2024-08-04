@@ -1,5 +1,6 @@
 import json
 import os
+import opencc
 
 def read_json_file(file_path):
     """
@@ -21,6 +22,10 @@ def read_json_file(file_path):
     except Exception as e:
         print(f"An error occurred while reading {file_path}: {str(e)}")
         return None
+        
+def convert_to_simplified(STRING):
+    converter = opencc.OpenCC('t2s')  # 繁体转简体
+    return converter.convert(STRING)
 
 
 def read_sdxl_styles(json_data):
@@ -238,8 +243,7 @@ def read_sdxl_templates_replace_and_combine_advanced(json_data, template_name, p
         return replace_prompts_in_template_advanced(template, positive_prompt_g, positive_prompt_l, negative_prompt, negative_prompt_to, copy_to_l)
     else:
         return positive_prompt_g, positive_prompt_l, f"{positive_prompt_g} . {positive_prompt_l}", negative_prompt, negative_prompt, negative_prompt
-
-
+        
 class SDXLPromptStyler:
 
     def __init__(self):
@@ -271,12 +275,16 @@ class SDXLPromptStyler:
         # The function replaces the positive prompt placeholder in the template,
         # and combines the negative prompt with the template's negative prompt, if they exist.
         text_positive_styled, text_negative_styled = read_sdxl_templates_replace_and_combine(self.json_data, style, text_positive, text_negative)
+        text_positive_styled = convert_to_simplified(text_positive_styled)
+        text_negative_styled = convert_to_simplified(text_negative_styled)
 
         # If style_negative is disabled, set text_negative_styled to text_negative
         if not style_positive:
             text_positive_styled = text_positive
             if log_prompt:
                 print(f"style_positive: disabled")
+ 
+
 
         # If style_negative is disabled, set text_negative_styled to text_negative
         if not style_negative:
@@ -292,7 +300,7 @@ class SDXLPromptStyler:
             print(f"text_negative: {text_negative}")
             print(f"text_positive_styled: {text_positive_styled}")
             print(f"text_negative_styled: {text_negative_styled}")
-
+        
         return text_positive_styled, text_negative_styled
     
 class SDXLPromptStylerAdvanced:
@@ -327,6 +335,12 @@ class SDXLPromptStylerAdvanced:
         # The function replaces the positive prompt placeholder in the template,
         # and combines the negative prompt with the template's negative prompt, if they exist.
         text_positive_g_styled, text_positive_l_styled, text_positive_styled, text_negative_g_styled, text_negative_l_styled, text_negative_styled = read_sdxl_templates_replace_and_combine_advanced(self.json_data, style, text_positive_g, text_positive_l, text_negative, negative_prompt_to, copy_to_l)
+        text_positive_styled = convert_to_simplified(text_positive_styled)
+        text_negative_styled = convert_to_simplified(text_negative_styled)
+        text_positive_g_styled = convert_to_simplified(text_positive_g_styled)
+        text_negative_g_styled = convert_to_simplified(text_negative_g_styled)
+        text_positive_l_styled = convert_to_simplified(text_positive_l_styled)
+        text_negative_l_styled = convert_to_simplified(text_negative_l_styled)
  
         # If logging is enabled (log_prompt is set to "Yes"), 
         # print the style, positive and negative text, and positive and negative prompts to the console
