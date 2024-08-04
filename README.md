@@ -13,7 +13,9 @@
 新增翻譯原有的SDXL的100種風格為中文，風格列表中與英文並存，以確保原有的工作流可用，增加GPT蒐羅的風格(未翻譯)，可能會與原有風格有重複。
 
 ### SDXL Prompt Styler (With OpenCC)
-![SDXL Prompt Styler Screenshot](examples/OpenCC_Prompt.png)
+![SDXL Prompt Styler Screenshot](examples/OpenCC_Prompt.png)    
+
+以下為英文原版說明
 
 ### SDXL Prompt Styler
 ![SDXL Prompt Styler Screenshot](examples/sdxl_prompt_styler.png)
