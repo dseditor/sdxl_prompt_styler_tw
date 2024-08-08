@@ -6,10 +6,10 @@
 
 1. goto ComfyUI/custom_nodes dir in terminal(cmd)    
 2. git clone https://github.com/dseditor/sdxl_prompt_styler_tw.git   
-3. 移動版請執行install.bat以安裝opencc，其他環境使用pip install opencc    
+3. 移動版請執行install.bat以安裝argostranslate，其他環境使用pip install argostranslate    
 4. Restart ComfyUI    
 
-中文版導入OpenCC庫，可將輸入的繁體中文提示詞轉為簡體中文，透過此節點可讓混元Dit、Kolors可直接使用繁體中文字。
+中文版導入argostranslate，採用類似Krita的結構進行翻譯，可以不須連接網路
 新增翻譯原有的SDXL的100種風格為中文，風格列表中與英文並存，以確保原有的工作流可用，增加GPT蒐羅的風格(未翻譯)，可能會與原有風格有重複。
 
 ### SDXL Prompt Styler (With OpenCC)
