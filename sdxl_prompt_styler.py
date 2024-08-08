@@ -1,6 +1,5 @@
 import json
 import os
-import opencc
 
 def read_json_file(file_path):
     """
@@ -23,11 +22,6 @@ def read_json_file(file_path):
         print(f"An error occurred while reading {file_path}: {str(e)}")
         return None
         
-def convert_to_simplified(STRING):
-    converter = opencc.OpenCC('t2s')  # 繁体转简体
-    return converter.convert(STRING)
-
-
 def read_sdxl_styles(json_data):
     """
     Returns style names from the provided JSON data.
@@ -268,23 +262,21 @@ class SDXLPromptStyler:
     RETURN_TYPES = ('STRING','STRING',)
     RETURN_NAMES = ('text_positive','text_negative',)
     FUNCTION = 'prompt_styler'
-    CATEGORY = 'utils'
+    CATEGORY = 'utils'    
 
     def prompt_styler(self, text_positive, text_negative, style, log_prompt, style_positive, style_negative):
         # Process and combine prompts in templates
         # The function replaces the positive prompt placeholder in the template,
         # and combines the negative prompt with the template's negative prompt, if they exist.
+        text_positive = self.translate_to_english(text_positive)
+        text_negative = self.translate_to_english(text_negative)
         text_positive_styled, text_negative_styled = read_sdxl_templates_replace_and_combine(self.json_data, style, text_positive, text_negative)
-        text_positive_styled = convert_to_simplified(text_positive_styled)
-        text_negative_styled = convert_to_simplified(text_negative_styled)
 
         # If style_negative is disabled, set text_negative_styled to text_negative
         if not style_positive:
             text_positive_styled = text_positive
             if log_prompt:
                 print(f"style_positive: disabled")
- 
-
 
         # If style_negative is disabled, set text_negative_styled to text_negative
         if not style_negative:
@@ -302,6 +294,35 @@ class SDXLPromptStyler:
             print(f"text_negative_styled: {text_negative_styled}")
         
         return text_positive_styled, text_negative_styled
+        
+    def translate_to_english(self, text):
+        if text.strip() == "":
+            return text
+
+        source = "zh"
+        target = "en"
+        
+        try:
+            from argostranslate.package import get_installed_packages, get_available_packages
+            from argostranslate.translate import translate
+
+            installed = get_installed_packages()
+            if not any(p.from_code == source and p.to_code == target for p in installed):
+                available = get_available_packages()
+                pkg = next(
+                    (p for p in available if p.from_code == source and p.to_code == target), None
+                )
+                assert pkg, f"Couldn't find package for translation from {source} to {target}"
+                print("Downloading and installing translation package", pkg)
+                pkg.install()
+
+            translation = translate(text, source, target)
+            return translation
+
+        except ImportError:
+            raise ImportError(
+                "Argos Translate is not installed. Please install it with `pip install argostranslate`"
+            )
     
 class SDXLPromptStylerAdvanced:
 
@@ -334,13 +355,11 @@ class SDXLPromptStylerAdvanced:
         # Process and combine prompts in templates
         # The function replaces the positive prompt placeholder in the template,
         # and combines the negative prompt with the template's negative prompt, if they exist.
+        text_positive_g = self.translate_to_english(text_positive_g)
+        text_positive_l = self.translate_to_english(text_positive_l)
+        text_negative = self.translate_to_english(text_negative)
         text_positive_g_styled, text_positive_l_styled, text_positive_styled, text_negative_g_styled, text_negative_l_styled, text_negative_styled = read_sdxl_templates_replace_and_combine_advanced(self.json_data, style, text_positive_g, text_positive_l, text_negative, negative_prompt_to, copy_to_l)
-        text_positive_styled = convert_to_simplified(text_positive_styled)
-        text_negative_styled = convert_to_simplified(text_negative_styled)
-        text_positive_g_styled = convert_to_simplified(text_positive_g_styled)
-        text_negative_g_styled = convert_to_simplified(text_negative_g_styled)
-        text_positive_l_styled = convert_to_simplified(text_positive_l_styled)
-        text_negative_l_styled = convert_to_simplified(text_negative_l_styled)
+       
  
         # If logging is enabled (log_prompt is set to "Yes"), 
         # print the style, positive and negative text, and positive and negative prompts to the console
@@ -357,6 +376,35 @@ class SDXLPromptStylerAdvanced:
             print(f"text_negative_styled: {text_negative_styled}")
 
         return text_positive_g_styled, text_positive_l_styled, text_positive_styled, text_negative_g_styled, text_negative_l_styled, text_negative_styled
+
+    def translate_to_english(self, text):
+        if text.strip() == "":
+            return text
+
+        source = "zh"
+        target = "en"
+        
+        try:
+            from argostranslate.package import get_installed_packages, get_available_packages
+            from argostranslate.translate import translate
+
+            installed = get_installed_packages()
+            if not any(p.from_code == source and p.to_code == target for p in installed):
+                available = get_available_packages()
+                pkg = next(
+                    (p for p in available if p.from_code == source and p.to_code == target), None
+                )
+                assert pkg, f"Couldn't find package for translation from {source} to {target}"
+                print("Downloading and installing translation package", pkg)
+                pkg.install()
+
+            translation = translate(text, source, target)
+            return translation
+
+        except ImportError:
+            raise ImportError(
+                "Argos Translate is not installed. Please install it with `pip install argostranslate`"
+            )
 
 
 NODE_CLASS_MAPPINGS = {
